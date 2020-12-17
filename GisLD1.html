@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>
+    Intro to widgets using BasemapToggle | Sample | ArcGIS API for JavaScript
+    4.17
+  </title>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css" />
+  <script src="https://js.arcgis.com/4.17/"></script>
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/widgets/BasemapToggle",
+      "esri/widgets/Locate",
+      "esri/widgets/Compass",
+      "esri/widgets/CoordinateConversion",
+      "esri/widgets/Bookmarks",
+      "esri/widgets/Expand",
+      "esri/widgets/Search",
+      "esri/widgets/Directions",
+      "esri/layers/FeatureLayer",
+      "esri/widgets/Legend",
+      "esri/Graphic"
+    ], function (
+      Map,
+      MapView,
+      BasemapToggle,
+      Locate,
+      Compass,
+      CoordinateConversion,
+      Bookmarks,
+      Expand,
+      Search,
+      Directions,
+      FeatureLayer,
+      Legend,
+      Graphic) {
+
+      let map = new Map({
+        basemap: "hybrid"
+      });
+
+      var view = new MapView({
+        container: "viewDiv",
+        map: map,
+        extent: {
+          //Lietuvos koordinatės
+          xmin: 2336223,
+          ymin: 7151036,
+          xmax: 2986936,
+          ymax: 7647651,
+          spatialReference: 102100
+        }
+      });
+
+      /* SLUOKSNIAI */
+
+
+      // Naujas sluoksnis - Saugomos teritorijos ir lankytinos vietos
+
+      let featureLayer = new FeatureLayer({
+        url:
+          "https://services.arcgis.com/fFwZ4t9mPyCe14FA/ArcGIS/rest/services/SaugomosTeritorijos_Lankytini_FS/FeatureServer/0",
+        popupTemplate: {
+          // autocasts as new PopupTemplate()
+          title: "{Pavadinimas}, {Adresas}, {Miestas}",
+          overwriteActions: true
+        }
+      });
+
+      map.add(featureLayer)
+
+      view.when(function () {
+        let legend = new Legend({
+          view: view
+        });
+
+        view.ui.add(legend, "bottom-right");
+      });
+
+      /* WIDGETS */
+
+
+      //Paieška (Multiple layers)
+
+
+      let searchWidget = new Search({
+        view: view,
+        allPlaceholder: "Saugomos teritorijos ir apžvalgos",
+        sources: [
+          {
+            layer: featureLayer,
+            searchFields: ["Pavadinimas", "Kategorija"],
+            displayField: "Pavadinimas",
+            exactMatch: false,
+            outFields: ["Pavadinimas", "Miestas", "Adresas"],
+            name: "Saugomos teritorijos",
+            placeholder: ""
+          }
+        ]
+      });
+
+      view.ui.add(searchWidget, {
+        position: "top-right"
+      });
+
+      //Mini žemėlapis
+
+      let toggle = new BasemapToggle({
+        view: view,
+        nextBasemap: "hybrid"
+      });
+
+      view.ui.add(toggle, "top-right");
+
+      //Lokacija
+
+      let locateBtn = new Locate({
+        view: view
+      });
+
+      view.ui.add(locateBtn, {
+        position: "top-left"
+      });
+
+      //Kompasas
+
+      let compassWidget = new Compass({
+        view: view
+      });
+
+      view.ui.add(compassWidget, "top-left");
+
+      // Bookmarks
+
+      const bookmarks = new Bookmarks({
+        view: view,
+        editingEnabled: true
+      });
+
+      const bkExpand = new Expand({
+        view: view,
+        content: bookmarks,
+        expanded: true
+      });
+
+      view.ui.add(bkExpand, "top-right");
+
+      //Maršrutas
+
+      let directionsWidget = new Directions({
+        view: view,
+        routeServiceUrl:
+          "https://utility.arcgis.com/usrsvcs/appservices/srsKxBIxJZB0pTZ0/rest/services/World/Route/NAServer/Route_World"
+      });
+
+      view.ui.add(directionsWidget, {
+        position: "bottom-left"
+      });
+
+      //Koordinatės
+
+      let ccWidget = new CoordinateConversion({
+        view: view
+      });
+
+      view.ui.add(ccWidget, "bottom-left");
+
+
+      /* GEOMETRIJA */
+
+      var torso = {
+        type: "polyline", // autocasts as new Polyline()
+        paths: [[46.97542, 63.288398], [47.098824, 60.680943], [51.677629, 60.778283], [51.456513, 63.107519], [46.97542, 63.288398]]
+      };
+
+      var leftLeg = {
+        type: "polyline", // autocasts as new Polyline()
+        paths: [[47.126653, 60.445843], [48.840520, 60.445843], [48.954778, 59.713763], [47.142564, 59.666031], [47.126653, 60.445843]]
+      };
+
+      var rightLeg = {
+        type: "polyline", // autocasts as new Polyline()
+        paths: [[50.126653, 60.445843], [51.840520, 60.445843], [51.954778, 59.713763], [50.142564, 59.666031], [50.126653, 60.445843]]
+      };
+
+      var leftArm = {
+        type: "polyline",
+        paths: [[46.511458, 63.274758], [46.564192, 62.416422], [45.948958, 61.591341], [44.437239, 61.532746], [46.511458, 63.274758]]
+      }
+
+      var rightArm = {
+        type: "polyline",
+        paths: [[51.768154, 63.058629], [51.996670, 62.210288], [52.875576, 61.497211], [54.070889, 61.463640], [51.768154, 63.058629]]
+      }
+
+      var head = {
+        type: "circle",
+        center: [49.127270, 63.874298],
+        radius: 500,
+        radiusUnit: "kilometers"
+      }
+
+      var fillSymbol = {
+        type: "simple-fill", // autocasts as new SimpleFillSymbol()
+        color: [227, 139, 79, 0.8],
+        outline: { // autocasts as new SimpleLineSymbol()
+          color: [255, 255, 255],
+          width: 1
+        }
+      };
+
+      var lineSymbol = {
+        type: "simple-line",
+        color: [26, 194, 219],
+        width: 8
+      };
+
+      var torsoGraphic = new Graphic({
+        geometry: torso,
+        symbol: lineSymbol,
+      });
+
+      var leftLegGraphic = new Graphic({
+        geometry: leftLeg,
+        symbol: lineSymbol,
+      });
+
+      var rightLegGraphic = new Graphic({
+        geometry: rightLeg,
+        symbol: lineSymbol,
+      });
+
+      var leftArmGraphic = new Graphic({
+        geometry: leftArm,
+        symbol: lineSymbol,
+      })
+      var rightArmGraphic = new Graphic({
+        geometry: rightArm,
+        symbol: lineSymbol,
+      })
+      var headGraphic = new Graphic({
+        geometry: head,
+        symbol: fillSymbol
+      })
+
+      view.graphics.addMany([torsoGraphic, leftLegGraphic, rightLegGraphic, leftArmGraphic, rightArmGraphic, headGraphic]);
+
+    });
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+</body>
+
+</html>
