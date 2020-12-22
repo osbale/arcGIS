@@ -85,6 +85,8 @@
       ) {
 
 
+        // Medziai
+
         var renderer = {
           type: "simple", // autocasts as new SimpleRenderer()
           symbol: {
@@ -185,6 +187,8 @@
           },
         })
 
+        // Kubeliai
+
         var graphicsLayer = new GraphicsLayer()
         map.add(graphicsLayer)
 
@@ -259,14 +263,6 @@
           // Add the resulting graphics to the graphics layer
           graphicsLayer.addMany(viewshedGraphics)
 
-          /********************************************************************
-           * Animate to the result. This is a temporary workaround
-           * for animating to an array of graphics in a SceneView. In a future
-           * release, you will be able to replicate this behavior by passing
-           * the graphics directly to the goTo function, like the following:
-           *
-           * view.goTo(viewshedGraphics);
-           ********************************************************************/
           view
             .goTo({
               target: viewshedGraphics,
@@ -278,6 +274,9 @@
               }
             })
         }
+
+
+        // Camera
 
         var rotateAntiClockwiseSpan = document.getElementById(
           "rotateAntiClockwiseSpan"
@@ -360,6 +359,8 @@
           indicatorSpan.style["transform"] = transform;
           indicatorSpan.style["-webkit-transform"] = transform; // Solution for Safari
         }
+
+        // Sviesa
 
         const daylightWidget = new Daylight({
           view: view,
